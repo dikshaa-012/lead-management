@@ -12,6 +12,9 @@ export default function Home() {
   });
 
   async function submit() {
+  try {
+    console.log("Sending:", form);
+
     const res = await fetch("/api/lead", {
       method: "POST",
       headers: {
@@ -22,10 +25,20 @@ export default function Home() {
 
     const data = await res.json();
 
-    console.log(data);
+    console.log("Status:", res.status);
+    console.log("Response:", data);
+
+    if (!res.ok) {
+      alert(data.message);
+      return;
+    }
 
     alert("Submitted!");
+  } catch (err) {
+    console.error(err);
+    alert("Request failed");
   }
+}
 
   return (
     <main className="max-w-xl mx-auto p-10 space-y-4">
