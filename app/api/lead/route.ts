@@ -20,6 +20,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+const BASE_URL = process.env.BASE_URL!;
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -49,7 +51,9 @@ Return ONLY valid JSON.
       const result = JSON.parse(response.text!);
       category = result.category;
       priority = result.priority;
-    } catch {}
+    } catch {
+      // Keep default values
+    }
 
     // ---------- Save Lead ----------
     const docRef = await addDoc(collection(db, "leads"), {
@@ -73,41 +77,40 @@ Return ONLY valid JSON.
       html: `
         <h2>Hi ${body.name},</h2>
 
-        <p>Thank you for reaching out.</p>
+        <p>Thank you for contacting us.</p>
 
         <p>We received your requirement:</p>
 
         <p><strong>${body.requirement}</strong></p>
 
         <p>
-          Category:
-          <strong>${category}</strong>
+          <strong>Category:</strong> ${category}
         </p>
 
         <p>
-          Priority:
-          <strong>${priority}</strong>
+          <strong>Priority:</strong> ${priority}
         </p>
 
         <br/>
 
         <img
-          src="http://localhost:3000/api/open?id=${leadId}"
+          src="${BASE_URL}/api/open?id=${leadId}"
           width="1"
           height="1"
+          style="display:none"
           alt=""
         />
 
-        <a
-          href="http://localhost:3000/api/click?id=${leadId}"
-        >
-          Learn More
-        </a>
+        <p>
+          <a href="${BASE_URL}/api/click?id=${leadId}">
+            Learn More
+          </a>
+        </p>
 
-        <br/><br/>
+        <br/>
 
         <p>Regards,</p>
-        <p>Lead Management Team</p>
+        <p><strong>Lead Management Team</strong></p>
       `,
     });
 
@@ -123,7 +126,7 @@ Return ONLY valid JSON.
     return NextResponse.json(
       {
         success: false,
-        message: "Something went wrong",
+        message: "Something went wrong.",
       },
       {
         status: 500,
